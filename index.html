@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Kitaran Haid & Istihadah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .title-font {
+            font-family: 'Playfair Display', serif;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease-in-out;
+        }
+        .btn-primary {
+            background-color: #EC4899; /* Pink-500 */
+            color: white;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #D946EF; /* Fuchsia-500 */
+        }
+        .input-field {
+            border: 1px solid #D1D5DB; /* Gray-300 */
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #EC4899;
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.3);
+        }
+        .result-card {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        .result-card.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .result-title {
+            color: #EC4899;
+        }
+        .haid { background-color: #FCE7F3; border-left: 5px solid #EC4899; } /* Pink-100, Pink-500 */
+        .suci { background-color: #F0FDF4; border-left: 5px solid #22C55E; } /* Green-50, Green-500 */
+        .istihadah { background-color: #FEF3C7; border-left: 5px solid #F59E0B; } /* Amber-100, Amber-500 */
+        .disclaimer {
+            font-size: 0.8rem;
+            color: #6B7280; /* Gray-500 */
+        }
+    </style>
+</head>
+<body class="bg-pink-50 min-h-screen flex items-center justify-center p-4">
+    <main class="w-full max-w-4xl mx-auto">
+        <div class="card p-6 md:p-10">
+            <div class="text-center mb-8">
+                <h1 class="title-font text-4xl md:text-5xl font-bold text-gray-800">Kalkulator Fiqh Wanita</h1>
+                <p class="mt-2 text-gray-600 text-lg">Kira tempoh haid, suci dan istihadah anda.</p>
+            </div>
+
+            <!-- Input Form -->
+            <div id="calculator-form" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                <div>
+                    <label for="last-period-date" class="block text-sm font-medium text-gray-700 mb-2">Tarikh Mula Haid Terakhir</label>
+                    <input type="date" id="last-period-date" class="input-field w-full">
+                </div>
+                <div>
+                    <label for="bleeding-days" class="block text-sm font-medium text-gray-700 mb-2">Tempoh Biasa Haid (hari)</label>
+                    <input type="number" id="bleeding-days" placeholder="Cth: 7" class="input-field w-full" min="1" max="15">
+                </div>
+                <div>
+                    <label for="cycle-length" class="block text-sm font-medium text-gray-700 mb-2">Tempoh Kitaran Haid (hari)</label>
+                    <input type="number" id="cycle-length" placeholder="Cth: 28" class="input-field w-full" min="15">
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <button id="calculate-btn" class="btn-primary py-3 px-10 text-lg">Kira Status</button>
+            </div>
+
+            <!-- Result Display -->
+            <div id="result-section" class="mt-10 result-card">
+                <h2 class="text-2xl font-bold text-center mb-6 text-gray-700">Analisa Kitaran Anda</h2>
+                <div class="space-y-4">
+                    <div id="current-status-card" class="p-5 rounded-lg text-center">
+                        <p class="text-sm font-semibold uppercase tracking-wider text-gray-500">Status Semasa Anda</p>
+                        <p id="current-status" class="text-3xl font-bold"></p>
+                        <p id="status-explanation" class="mt-2 text-gray-600"></p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500">Anggaran Haid Seterusnya</p>
+                            <p id="next-period-date" class="text-xl font-semibold text-gray-800"></p>
+                        </div>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <p class="text-sm text-gray-500">Tempoh Minimum Suci</p>
+                            <p id="minimum-suci" class="text-xl font-semibold text-gray-800"></p>
+                        </div>
+                    </div>
+                </div>
+                 <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg disclaimer">
+                    <p class="font-semibold">Penafian Penting:</p>
+                    <p>Kalkulator ini adalah alat bantuan berdasarkan kaedah umum fiqh. Ia tidak menggantikan nasihat daripada ustaz/ustazah atau pakar perubatan. Keadaan setiap wanita adalah unik. Untuk kepastian, sila rujuk kepada ahli agama yang bertauliah.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get DOM elements
+            const lastPeriodDateInput = document.getElementById('last-period-date');
+            const bleedingDaysInput = document.getElementById('bleeding-days');
+            const cycleLengthInput = document.getElementById('cycle-length');
+            const calculateBtn = document.getElementById('calculate-btn');
+            const resultSection = document.getElementById('result-section');
+            const currentStatusCard = document.getElementById('current-status-card');
+            const currentStatusEl = document.getElementById('current-status');
+            const statusExplanationEl = document.getElementById('status-explanation');
+            const nextPeriodDateEl = document.getElementById('next-period-date');
+            const minimumSuciEl = document.getElementById('minimum-suci');
+
+            // Set today's date as default for date input
+            lastPeriodDateInput.value = new Date().toISOString().split('T')[0];
+
+            calculateBtn.addEventListener('click', function () {
+                // --- Input Validation ---
+                const lastPeriodDate = lastPeriodDateInput.value;
+                const bleedingDays = parseInt(bleedingDaysInput.value);
+                const cycleLength = parseInt(cycleLengthInput.value);
+
+                if (!lastPeriodDate || isNaN(bleedingDays) || isNaN(cycleLength)) {
+                    alert('Sila isi semua ruangan dengan betul.');
+                    return;
+                }
+                
+                if (bleedingDays < 1 || bleedingDays > 15) {
+                    alert('Tempoh biasa haid mestilah antara 1 hingga 15 hari.');
+                    return;
+                }
+
+                if (cycleLength < 15) {
+                    alert('Tempoh kitaran haid mestilah sekurang-kurangnya 15 hari.');
+                    return;
+                }
+
+                // --- Date Calculations ---
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Normalize today's date
+                const startDate = new Date(lastPeriodDate);
+                startDate.setHours(0, 0, 0, 0); // Normalize start date
+
+                const daysSinceLastPeriod = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+
+                // --- Fiqh Logic based on Malaysian Mufti references (General interpretation) ---
+                // Haid: Minimum 1 day (24 hours), Maximum 15 days.
+                // Suci: Minimum 15 days between two haid.
+                // Istihadah: Bleeding less than 24 hours, or more than 15 days, or during the minimum suci period.
+
+                let status = '';
+                let explanation = '';
+                let cardClass = '';
+
+                // Determine the current cycle day
+                const currentCycleDay = (daysSinceLastPeriod % cycleLength) + 1;
+
+                if (daysSinceLastPeriod >= 0 && daysSinceLastPeriod < bleedingDays) {
+                    // This is the expected bleeding period based on user's typical cycle
+                    status = 'Haid (الحيض)';
+                    explanation = `Anda berada dalam tempoh kebiasaan haid anda (Hari ke-${daysSinceLastPeriod + 1}). Darah yang keluar dalam tempoh ini dikira sebagai haid.`;
+                    cardClass = 'haid';
+                } else if (daysSinceLastPeriod >= bleedingDays && daysSinceLastPeriod < cycleLength) {
+                    // This is the expected suci period
+                    const daysIntoSuci = daysSinceLastPeriod - bleedingDays + 1;
+                    status = 'Suci (الطهر)';
+                    explanation = `Anda berada dalam tempoh suci (Hari ke-${daysIntoSuci}). Anda wajib solat dan puasa.`;
+                    cardClass = 'suci';
+                } else {
+                    // This logic handles days beyond the typical cycle length, which could be prolonged suci or a new cycle.
+                    // For simplicity, we'll check against the maximum haid duration if bleeding continues.
+                    // A more advanced calculator would track bleeding logs.
+                    // This part assumes a new cycle has begun and checks for istihadah.
+                    const dayInPotentialNewCycle = daysSinceLastPeriod - cycleLength;
+                    if (dayInPotentialNewCycle >= 0 && dayInPotentialNewCycle < bleedingDays) {
+                         status = 'Haid (الحيض)';
+                         explanation = `Anda dijangka berada dalam tempoh haid untuk kitaran baru (Hari ke-${dayInPotentialNewCycle + 1}).`;
+                         cardClass = 'haid';
+                    } else if (dayInPotentialNewCycle >= bleedingDays) {
+                         // If bleeding persists beyond 15 days from the start of the *actual* bleeding, it's Istihadah.
+                         // This calculator simplifies by assuming bleeding follows the pattern.
+                         status = 'Istihadah (الاستحاضة)';
+                         explanation = `Jika pendarahan berterusan melebihi 15 hari, ia dianggap Istihadah. Anda perlu kembali kepada tempoh haid biasa anda (${bleedingDays} hari) dan selebihnya dikira Istihadah. Wajib solat dan puasa.`;
+                         cardClass = 'istihadah';
+                    } else {
+                        // Default to suci if logic doesn't fit other categories
+                        status = 'Suci (الطهر)';
+                        explanation = 'Anda berada dalam tempoh suci. Anda wajib solat dan puasa.';
+                        cardClass = 'suci';
+                    }
+                }
+                
+                // --- Update UI ---
+                currentStatusEl.textContent = status;
+                statusExplanationEl.textContent = explanation;
+                currentStatusCard.className = `p-5 rounded-lg text-center transition-all duration-300 ${cardClass}`;
+
+                // Calculate next period date
+                const nextPeriodStartDate = new Date(startDate);
+                nextPeriodStartDate.setDate(startDate.getDate() + cycleLength);
+                nextPeriodDateEl.textContent = nextPeriodStartDate.toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                // Calculate minimum suci period
+                const minSuci = cycleLength - bleedingDays;
+                minimumSuciEl.textContent = `${minSuci} hari`;
+                
+                // Show the result section with a smooth animation
+                resultSection.classList.add('show');
+            });
+        });
+    </script>
+</body>
+</html>
